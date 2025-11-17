@@ -143,6 +143,12 @@ int main(int argc, char** argv)
             glfwGUI.setWindowBackgroundImage(background->d_image.getFullPath());
     }
 
+    //Camera
+    auto camera = groot->getTreeObject<sofa::component::visual::BaseCamera>();
+    if(camera){
+        glfwGUI.changeCamera(camera);
+    }
+
     // Run the main loop
     const auto currentTime = std::chrono::steady_clock::now();
     const auto currentNbIterations = glfwGUI.runLoop(targetNbIterations);

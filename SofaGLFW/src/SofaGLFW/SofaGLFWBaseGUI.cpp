@@ -124,18 +124,20 @@ void SofaGLFWBaseGUI::setErrorCallback() const
 
 void SofaGLFWBaseGUI::setSimulation(NodeSPtr groot, const std::string& filename)
 {
+    if(!groot)
+        return;
     this->groot = groot;
     this->sceneFileName = filename;
 
     VisualParams::defaultInstance()->drawTool() = m_glDrawTool;
     sofa::core::visual::VisualParams::defaultInstance()->setSupported(sofa::core::visual::API_OpenGL);
 
-    if (this->groot)
-    {
-        // Initialize the pick handler
-        this->pick->init(this->groot.get());
-        m_sofaGLFWMouseManager.setPickHandler(getPickHandler());
-    }
+    // Initialize the pick handler
+    this->pick->init(this->groot.get());
+    m_sofaGLFWMouseManager.setPickHandler(getPickHandler());
+
+    auto camera = groot->get<BaseCamera>();
+    changeCamera(camera);
 }
 
 void SofaGLFWBaseGUI::setSimulationIsRunning(bool running)
@@ -492,8 +494,8 @@ std::size_t SofaGLFWBaseGUI::runLoop(std::size_t targetNbIterations)
                     makeCurrentContext(glfwWindow);
                     
                     m_guiEngine->beforeDraw(glfwWindow);
-                    sofaGlfwWindow->draw(this->groot, m_vparams);
 
+                    sofaGlfwWindow->draw(this->groot, m_vparams);
                     drawSelection(m_vparams);
 
                     m_guiEngine->afterDraw();
@@ -766,6 +768,7 @@ void SofaGLFWBaseGUI::key_callback(GLFWwindow* window, int key, int scancode, in
                     currentGUI->setWindowTitle(nullptr, std::string("SOFA - " + filename).c_str());
 
                     sofa::simulation::node::initRoot(groot.get());
+                    std::cout << "ICI JE DOIS INIT LA CAMERA ... " << currentGUI->currentCamera << std::endl;
                     if (currentGUI->currentCamera)
                     {
                         currentGUI->currentCamera->fitBoundingBox(groot->f_bbox.getValue().minBBox(), groot->f_bbox.getValue().maxBBox());
